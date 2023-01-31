@@ -1,0 +1,39 @@
+# Platelet-driven routes to Chaos in a Model of Hepatitis
+# M.R. Nelson, J.M. Gibbins, J.L. Dunster
+# Submitted to Chaos, Solutions and Fractals, 2023
+
+# This code assumes a single scaling parameter (rho) for platelet effects, as per Section 4 of the manuscript
+
+#Initialise paramaters
+par rho=1 km=0.0001 phi=0.01 nu=0.1 gammaM=0.01 gammaA=1 gammaG=1 kg=0.1 kn=0.01 betaA=0.1 betaN=0.1 betaC=0.12 betaG=0.01
+par km1=30 km2=0.3 phi2=10 kh=0.1 gammaM2=0.01
+par nu2=0.01 chiH=1 gammaH=0.1 gammaE=0.1 r1=1 r2=1
+
+init u1=0 u2=0 u3=0 u4=0 u5=1 u6=0 u7=1 u8=0 u9=1
+
+dU1/dt= rho*U5/(1+U6) - nu*U1*(1+U6/betaG)/(1+U5/betaC) 
+dU2/dt= nu*U1*(1+U6/betaG)/(1+U5/betaC) - rho*gammaA*U2 - phi*U2*(U3+phi2*U4)
+dU3/dt= rho*U5 - rho*km1*phi*U2*U3 + km2*U4 - gammaM*U3*(1+gammaM2*U4)
+dU4/dt= rho*km1*phi*U2*U3 - km2*U4 - gammaM*U4
+dU5/dt= rho*gammaA*U2^2/(betaA^2 + U2^2) + rho*kn*U1^2/(betaN^2+U1^2) + U8 +km*U3 - U5
+dU6/dt= rho*kg*U4 + kh*U7 - gammaG*U6 
+dU7/dt= chiH*phi*U9*U8*(U3+phi2*U4) + gammaE*(1-U7-U8) - nu2*U7*U5 + gammaH*U8*U9
+dU8/dt= nu2*U7*U5 - chiH*phi*U8*(U3+phi2*U4) - gammaH*U8
+dU9/dt= r2*(1-U9)*(1+U6) - rho*r1*U9*U5 
+
+# The ODE for ECM has been removed, and e replaced by (1-u7-u8) to ensure conservation of liver tissue.
+# The ODE for s_a has been removed, and s_a replaced by 1-u9 to ensure conservation of stellate cells.
+
+# Variables are as follows:
+# U1 = n, U2 = a, U3 = m1, U4 = m2, U5 = c, U6 = g
+# U7 = h, U8 = ha, U9 = s
+# (1-U7-U8) = e, (1-U9) = s_a
+
+@ xlo=0, xhi=1000, ylo=0, yhi=10,
+@ bounds=1000000
+@ DT=0.01 Time step for integrator
+
+@ YP=U5, NOUT=1, TOTAL=1000, MAXSTOR=200000, BELL=0, AUTOVAR=U5
+@ meth=cvode
+
+done
